@@ -1,3 +1,4 @@
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -5,6 +6,11 @@
 
 import { FunctionResponseScheduling } from '@google/genai';
 import { FunctionCall } from '../state';
+import { humanSoundsTool } from './human-sounds';
+import { mannerismTool } from './mannerisms';
+import { singingTool } from './singing';
+import { memoryTools } from './memory';
+import { feedbackTool } from './feedback';
 
 export const customerSupportTools: FunctionCall[] = [
   {
@@ -70,4 +76,9 @@ export const customerSupportTools: FunctionCall[] = [
     isEnabled: true,
     scheduling: FunctionResponseScheduling.INTERRUPT,
   },
+  humanSoundsTool,
+  mannerismTool,
+  singingTool,
+  feedbackTool,
+  ...memoryTools,
 ];
