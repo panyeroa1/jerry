@@ -84,9 +84,6 @@ export default function Sidebar() {
 
   const handleResetDefaults = () => {
      if(window.confirm('Reset System Prompt to default Jerry persona?')) {
-        // We trigger a reload to reset state if needed, or just set it manually. 
-        // Ideally we grab the constant from state.ts but it's not exported raw.
-        // We will just clear storage and reload.
         localStorage.removeItem('jerry-settings-v2');
         window.location.reload();
      }
@@ -103,12 +100,12 @@ export default function Sidebar() {
              >
                Settings
              </button>
-             <span style={{margin: '0 8px', color: '#444'}}>|</span>
+             <span style={{margin: '0 8px', color: 'var(--glass-border)'}}>|</span>
              <button 
                className={c('tab-btn', { active: activeTab === 'phonebook' })} 
                onClick={() => setActiveTab('phonebook')}
              >
-               Phonebook
+               Contacts
              </button>
           </h3>
           <button onClick={toggleSidebar} className="close-button">
@@ -131,12 +128,12 @@ export default function Sidebar() {
               </label>
               <button 
                 onClick={handleResetDefaults} 
-                style={{fontSize: '12px', padding: '5px', backgroundColor: '#333', marginTop: '-10px', width: 'fit-content'}}
+                style={{fontSize: '12px', padding: '6px 12px', background: 'var(--glass-surface)', color: 'var(--text-secondary)', border: '1px solid var(--glass-border)', borderRadius:'var(--radius-sm)', marginTop: '-10px', width: 'fit-content', cursor: 'pointer'}}
               >
                 Reset to Default Persona
               </button>
 
-              <label>
+              <label style={{marginTop: '20px'}}>
                 Model
                 <select value={model} onChange={e => setModel(e.target.value)}>
                   {AVAILABLE_MODELS.map(m => (
@@ -213,41 +210,41 @@ export default function Sidebar() {
              <div className="sidebar-content">
                 <div className="sidebar-section">
                     <h4 className="sidebar-section-title">My Contacts</h4>
-                    <p style={{fontSize: '12px', color: '#888'}}>
-                        Sync contacts or add manually so Jerry can call/text them.
+                    <p style={{fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '16px'}}>
+                        Sync contacts from your device to let Jerry call or text them by name.
                     </p>
                     
-                    <button onClick={handleImportContacts} className="add-tool-button">
-                        <span className="icon">sync</span> Import from Device
+                    <button onClick={handleImportContacts} className="add-tool-button sync-contacts-button">
+                        <span className="icon">sync</span> Sync from Device
                     </button>
 
-                    <div className="add-contact-form" style={{display:'flex', flexDirection:'column', gap:'8px', marginTop:'16px', padding:'10px', background:'#222', borderRadius:'8px'}}>
+                    <div className="phonebook-form">
                         <input 
                             placeholder="Name (e.g. Mama)" 
                             value={newContactName} 
                             onChange={e => setNewContactName(e.target.value)}
-                            style={{fontSize: '14px', padding: '8px'}}
+                            className="contact-input"
                         />
                         <input 
                             placeholder="Number (0917...)" 
                             value={newContactNumber} 
                             onChange={e => setNewContactNumber(e.target.value)}
-                            style={{fontSize: '14px', padding: '8px'}}
+                            className="contact-input"
                         />
-                        <button onClick={handleAddContact} style={{background: 'var(--Blue-500)', padding: '8px', borderRadius: '4px'}}>
+                        <button onClick={handleAddContact} className="save-contact-button">
                             Save Contact
                         </button>
                     </div>
 
-                    <div className="contacts-list" style={{marginTop: '20px', display:'flex', flexDirection: 'column', gap:'8px'}}>
-                        {contacts.length === 0 && <span style={{color: '#666', fontStyle:'italic'}}>No contacts saved yet.</span>}
+                    <div className="contacts-list">
+                        {contacts.length === 0 && <span className="empty-contacts">No contacts saved yet.</span>}
                         {contacts.map((c, i) => (
-                            <div key={i} style={{display:'flex', justifyContent:'space-between', alignItems:'center', background:'#1a1a1a', padding:'10px', borderRadius:'6px'}}>
-                                <div>
-                                    <div style={{fontWeight:'bold', fontSize:'14px'}}>{c.name}</div>
-                                    <div style={{fontSize:'12px', color:'#aaa'}}>{c.number}</div>
+                            <div key={i} className="contact-item">
+                                <div className="contact-info">
+                                    <span className="contact-name">{c.name}</span>
+                                    <span className="contact-number">{c.number}</span>
                                 </div>
-                                <button onClick={() => handleDeleteContact(c.name)} style={{color: '#ff4600'}}>
+                                <button onClick={() => handleDeleteContact(c.name)} className="delete-contact-button">
                                     <span className="icon">delete</span>
                                 </button>
                             </div>

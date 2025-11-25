@@ -6,7 +6,7 @@
   /* DARK MODE (Default) - Soft Midnight */
   --bg-deep: #0F0F12;
   --bg-soft: #18181B;
-  --bg-gradient-1: #13131F;
+  --bg-gradient-1: #431c5d;
   --bg-gradient-2: #0A0A0E;
   
   /* Soft Glass */
@@ -302,6 +302,107 @@ header {
   background: var(--glass-surface);
   color: var(--accent-primary);
   border-color: var(--accent-primary);
+}
+
+/* Phonebook Styles */
+.phonebook-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--glass-surface);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+}
+
+.contact-input {
+  width: 100% !important;
+  background: rgba(0,0,0,0.2) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 10px !important;
+  color: var(--text-primary) !important;
+  font-size: 0.9rem !important;
+  margin-bottom: 0 !important;
+}
+
+.save-contact-button {
+  background: var(--accent-primary);
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.save-contact-button:hover {
+  background: var(--accent-secondary);
+}
+
+.contacts-list {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.contact-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--glass-surface);
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+  transition: transform 0.2s;
+}
+
+.contact-item:hover {
+  transform: translateX(4px);
+  background: var(--glass-surface-hover);
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.contact-number {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.delete-contact-button {
+  background: transparent;
+  border: none;
+  color: var(--danger);
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  padding: 4px;
+}
+
+.delete-contact-button:hover {
+  opacity: 1;
+  background: rgba(244, 63, 94, 0.1);
+  border-radius: 4px;
+}
+
+.empty-contacts {
+  color: var(--text-tertiary);
+  font-style: italic;
+  text-align: center;
+  margin-top: 20px;
 }
 
 /* Main App Area */
