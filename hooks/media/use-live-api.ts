@@ -23,12 +23,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { GenAILiveClient } from '../../lib/genai-live-client';
 import { LiveConnectConfig, Modality, LiveServerToolCall } from '@google/genai';
 import { AudioStreamer } from '../../lib/audio-streamer';
-import { audioContext, playConnectionChime } from '../../lib/utils';
+import { audioContext, playConnectionChime, playDisconnectChime } from '../../lib/utils';
 import VolMeterWorket from '../../lib/worklets/vol-meter';
 import { useLogStore, useSettings } from '@/lib/state';
 import { saveMemory, getStoredMemories } from '../../lib/tools/memory';
 import { saveCorrection, getCorrections } from '../../lib/tools/feedback';
 import { saveReminder, getReminders, saveEvent, getCalendar } from '../../lib/tools/reminders';
+import { saveContact, findContact } from '../../lib/tools/phonebook';
 
 export type UseLiveApiResults = {
   client: GenAILiveClient;
@@ -83,6 +84,7 @@ export function useLiveApi({
 
     const onClose = () => {
       setConnected(false);
+      playDisconnectChime();
     };
 
     const stopAudioStreamer = () => {
@@ -167,6 +169,35 @@ export function useLiveApi({
                 result = JSON.stringify(getCalendar());
               }
               break;
+            case 'add_contact':
+              if (fc.args.name && fc.args.number) {
+                result = saveContact(fc.args.name as string, fc.args.number as string);
+              }
+              break;
+            case 'search_contact':
+                const contact = findContact(fc.args.name as string);
+                result = contact ? JSON.stringify(contact) : 'Contact not found.';
+                break;
+            case 'dial_number':
+              if (fc.args.number) {
+                 window.open(`tel:${fc.args.number}`, '_self');
+                 result = `Dialing ${fc.args.number}...`;
+              }
+              break;
+            case 'send_sms':
+                let num = fc.args.number as string;
+                if (!num && fc.args.recipient_name) {
+                    const c = findContact(fc.args.recipient_name as string);
+                    if (c) num = c.number;
+                }
+                if (num) {
+                    const msg = fc.args.message ? encodeURIComponent(fc.args.message as string) : '';
+                    window.open(`sms:${num}?body=${msg}`, '_self');
+                    result = `Opening SMS app for ${num}...`;
+                } else {
+                    result = "Error: Phone number not found.";
+                }
+                break;
             case 'emit_human_sound':
             case 'emit_mannerism':
             case 'sing_snippet':

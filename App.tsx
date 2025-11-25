@@ -1,3 +1,4 @@
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -21,10 +22,11 @@
 import ControlTray from './components/console/control-tray/ControlTray';
 import ErrorScreen from './components/demo/ErrorScreen';
 import StreamingConsole from './components/demo/streaming-console/StreamingConsole';
-
+import { useEffect } from 'react';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import { LiveAPIProvider } from './contexts/LiveAPIContext';
+import { useUI } from './lib/state';
 
 const API_KEY = process.env.API_KEY as string;
 if (typeof API_KEY !== 'string') {
@@ -38,8 +40,53 @@ if (typeof API_KEY !== 'string') {
  * Manages video streaming state and provides controls for webcam/screen capture.
  */
 function App() {
+  const { theme } = useUI();
+  
+  // Request Wake Lock to prevent background throttling
+  useEffect(() => {
+    let wakeLock: any = null;
+    const requestWakeLock = async () => {
+        // Feature check
+        if ('wakeLock' in navigator) {
+            try {
+                // @ts-ignore
+                wakeLock = await navigator.wakeLock.request('screen');
+                console.log('Wake Lock active');
+            } catch (err: any) {
+                // Ignore specific permission errors which are common in IFrames/Sandboxes
+                if (err.name === 'NotAllowedError') {
+                    console.debug('Wake Lock not allowed by permission policy. Running without it.');
+                } else {
+                    console.warn('Wake Lock failed:', err);
+                }
+            }
+        }
+    };
+    
+    // Initial request
+    requestWakeLock();
+    
+    // Re-request on visibility change (wake locks are released when tab is hidden)
+    const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible') {
+            requestWakeLock();
+        }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+        if (wakeLock) {
+            try {
+                wakeLock.release();
+            } catch (e) {
+                // ignore
+            }
+        }
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
   return (
-    <div className="App">
+    <div className="App" data-theme={theme}>
       <LiveAPIProvider apiKey={API_KEY}>
         <ErrorScreen />
         <Header />

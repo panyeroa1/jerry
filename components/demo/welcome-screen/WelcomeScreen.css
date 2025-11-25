@@ -1,48 +1,69 @@
+
 .welcome-screen {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100%;
   text-align: center;
-  color: var(--gray-500);
+  color: var(--text-secondary);
+  perspective: 1000px;
 }
 
 .welcome-content {
   max-width: 600px;
+  padding: 40px;
+  background: var(--glass-surface);
+  border: 1px solid var(--glass-border);
+  border-radius: 32px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--glass-shadow);
+  transform: rotateX(2deg);
+  animation: floatCard 6s ease-in-out infinite;
+}
+
+@keyframes floatCard {
+  0% { transform: translateY(0px) rotateX(2deg); }
+  50% { transform: translateY(-10px) rotateX(2deg); }
+  100% { transform: translateY(0px) rotateX(2deg); }
 }
 
 .welcome-icon {
-  font-size: 60px;
-  color: var(--gray-700);
-  margin-bottom: 20px;
-  font-family: 'Material Symbols Outlined';
+  font-size: 72px;
+  margin-bottom: 24px;
+  display: block;
 }
 
 .title-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
 
 .title-selector {
   position: relative;
   display: inline-block;
+  margin-top: 10px;
 }
 
 .title-selector select {
-  font-size: 28px;
-  font-weight: bold;
-  color: var(--gray-300);
+  font-family: var(--font-sans);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
   background-color: transparent;
   border: none;
   appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  padding-right: 30px;
-  /* Space for the icon */
+  padding-right: 32px;
   cursor: pointer;
-  text-transform: capitalize;
+  text-align: center;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.title-selector select:hover {
+  border-color: var(--accent-primary);
 }
 
 .title-selector .icon {
@@ -50,28 +71,38 @@
   top: 50%;
   right: 0;
   transform: translateY(-50%);
-  font-size: 30px;
-  color: var(--gray-300);
+  font-size: 24px;
+  color: var(--accent-primary);
   pointer-events: none;
-  /* Allows clicks to pass through to the select */
 }
 
 .welcome-content p {
-  font-size: 18px;
-  margin-bottom: 30px;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 40px;
+  color: var(--text-tertiary);
 }
 
 .example-prompts {
   display: flex;
-  justify-content: center;
-  gap: 15px;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .prompt {
-  background-color: var(--Neutral-15);
-  padding: 10px 15px;
-  border-radius: 8px;
-  font-family: 'Roboto Mono', monospace;
-  font-size: 14px;
-  color: var(--gray-200);
+  background-color: rgba(255,255,255,0.05);
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  border: 1px solid transparent;
+  transition: all 0.2s;
+  cursor: default;
+}
+
+.prompt:hover {
+  background-color: rgba(255,255,255,0.1);
+  border-color: var(--glass-border-light);
+  transform: scale(1.02);
 }

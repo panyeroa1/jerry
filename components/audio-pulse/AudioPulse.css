@@ -1,16 +1,18 @@
+
 .audio-pulse {
-  width: 74px; /* Slightly wider for 5 bars */
-  height: 24px;
+  width: 90px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 8px;
-  opacity: 0.5;
+  opacity: 0.6;
   transition: opacity 0.3s ease;
+  filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.3));
 }
 
 .audio-pulse.active {
   opacity: 1;
+  filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.6));
 }
 
 .audio-pulse canvas {

@@ -1,3 +1,4 @@
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -17,12 +18,7 @@ import {
 } from '@/lib/state';
 
 const formatTimestamp = (date: Date) => {
-  const pad = (num: number, size = 2) => num.toString().padStart(size, '0');
-  const hours = pad(date.getHours());
-  const minutes = pad(date.getMinutes());
-  const seconds = pad(date.getSeconds());
-  const milliseconds = pad(date.getMilliseconds(), 3);
-  return `${hours}:${minutes}:${seconds}.${milliseconds}`;
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 };
 
 const renderContent = (text: string) => {
@@ -77,8 +73,6 @@ export default function StreamingConsole() {
         ],
       }));
 
-    // Using `any` for config to accommodate `speechConfig`, which is not in the
-    // current TS definitions but is used in the working reference example.
     const config: any = {
       responseModalities: [Modality.AUDIO],
       speechConfig: {
@@ -132,8 +126,6 @@ export default function StreamingConsole() {
       }
     };
 
-    // FIX: The 'content' event provides a single LiveServerContent object.
-    // The function signature is updated to accept one argument, and groundingMetadata is extracted from it.
     const handleContent = (serverContent: LiveServerContent) => {
       const text =
         serverContent.modelTurn?.parts
@@ -200,20 +192,12 @@ export default function StreamingConsole() {
           {turns.map((t, i) => (
             <div
               key={i}
-              className={`transcription-entry ${t.role} ${!t.isFinal ? 'interim' : ''
-                }`}
+              className={`transcription-entry ${t.role} ${!t.isFinal ? 'interim' : ''}`}
             >
               <div className="transcription-header">
-                <div className="transcription-source">
-                  {t.role === 'user'
-                    ? 'You'
-                    : t.role === 'agent'
-                      ? 'Agent'
-                      : 'System'}
-                </div>
-                <div className="transcription-timestamp">
+                <span className="transcription-timestamp">
                   {formatTimestamp(t.timestamp)}
-                </div>
+                </span>
               </div>
               <div className="transcription-text-content">
                 {renderContent(t.text)}

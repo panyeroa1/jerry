@@ -82,8 +82,24 @@ export async function playConnectionChime() {
   osc.connect(gain);
   gain.connect(ctx.destination);
   osc.start();
+  // Ascending tone (Active/Listening)
   osc.frequency.setValueAtTime(600, ctx.currentTime);
-  osc.frequency.linearRampToValueAtTime(1000, ctx.currentTime + 0.1);
+  osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.1);
+  gain.gain.setValueAtTime(0.05, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+  osc.stop(ctx.currentTime + 0.5);
+}
+
+export async function playDisconnectChime() {
+  const ctx = await audioContext({ id: 'chime' });
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  // Descending tone (Inactive/Sleep)
+  osc.frequency.setValueAtTime(1000, ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.2);
   gain.gain.setValueAtTime(0.05, ctx.currentTime);
   gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
   osc.stop(ctx.currentTime + 0.5);
