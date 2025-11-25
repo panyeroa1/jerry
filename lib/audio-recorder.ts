@@ -1,3 +1,4 @@
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -61,13 +62,22 @@ export class AudioRecorder {
     }
 
     this.starting = new Promise(async (resolve, reject) => {
-      // EBURON: Enhanced audio constraints for noise reduction and voice focus
+      // EBURON: Advanced audio constraints for maximum voice isolation
+      // Includes standard WebRTC constraints and Chrome-specific legacy flags
       this.stream = await navigator.mediaDevices.getUserMedia({
         audio: {
+          channelCount: 1,
           echoCancellation: true,
           autoGainControl: true,
           noiseSuppression: true,
-          channelCount: 1,
+          // @ts-ignore - Specific Chrome/Webkit constraints for clearer voice
+          googEchoCancellation: true,
+          // @ts-ignore
+          googAutoGainControl: true,
+          // @ts-ignore
+          googNoiseSuppression: true,
+          // @ts-ignore
+          googHighpassFilter: true
         },
       });
       this.audioContext = await audioContext({ sampleRate: this.sampleRate });

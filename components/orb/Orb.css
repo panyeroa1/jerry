@@ -1,0 +1,93 @@
+
+.orb-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  perspective: 1000px;
+}
+
+.orb {
+  width: 240px;
+  height: 240px;
+  position: relative;
+  z-index: 1;
+  filter: blur(4px); /* Soften edges */
+}
+
+.orb-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+  mix-blend-mode: screen;
+  filter: blur(24px); /* Heavy blur for liquid look */
+  animation: orb-spin 12s linear infinite;
+  transition: transform 0.2s cubic-bezier(0.1, 0.9, 0.2, 1);
+  opacity: 0.8;
+}
+
+/* Updated Colors for Soft Theme */
+.layer-1 {
+  background: radial-gradient(circle at 30% 30%, #6366F1, transparent 60%);
+  animation-duration: 8s;
+  animation-direction: normal;
+}
+
+.layer-2 {
+  background: radial-gradient(circle at 70% 70%, #06B6D4, transparent 60%); 
+  animation-duration: 14s;
+  animation-direction: reverse;
+  opacity: 0.7;
+}
+
+.layer-3 {
+  background: radial-gradient(circle at 50% 50%, #A855F7, transparent 60%); 
+  animation-duration: 18s;
+  opacity: 0.6;
+}
+
+.orb-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(40px);
+}
+
+@keyframes orb-spin {
+  0% {
+    border-radius: 45% 55% 70% 30% / 30% 30% 70% 70%;
+    transform: rotate(0deg);
+  }
+  33% {
+    border-radius: 65% 35% 30% 70% / 50% 50% 50% 50%;
+  }
+  66% {
+    border-radius: 35% 65% 70% 30% / 60% 40% 60% 40%;
+  }
+  100% {
+    border-radius: 45% 55% 70% 30% / 30% 30% 70% 70%;
+    transform: rotate(360deg);
+  }
+}
+
+/* Light mode adjustments */
+[data-theme='light'] .orb-layer {
+  mix-blend-mode: multiply;
+  filter: blur(30px);
+}
+
+[data-theme='light'] .layer-1 { background: radial-gradient(circle at 30% 30%, #818CF8, transparent 60%); }
+[data-theme='light'] .layer-2 { background: radial-gradient(circle at 70% 70%, #67E8F9, transparent 60%); }
+[data-theme='light'] .layer-3 { background: radial-gradient(circle at 50% 50%, #C4B5FD, transparent 60%); }

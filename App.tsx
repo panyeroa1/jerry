@@ -22,6 +22,7 @@
 import ControlTray from './components/console/control-tray/ControlTray';
 import ErrorScreen from './components/demo/ErrorScreen';
 import StreamingConsole from './components/demo/streaming-console/StreamingConsole';
+import Orb from './components/orb/Orb';
 import { useEffect } from 'react';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
@@ -40,7 +41,7 @@ if (typeof API_KEY !== 'string') {
  * Manages video streaming state and provides controls for webcam/screen capture.
  */
 function App() {
-  const { theme } = useUI();
+  const { theme, isChatOpen } = useUI();
   
   // Request Wake Lock to prevent background throttling
   useEffect(() => {
@@ -94,8 +95,14 @@ function App() {
         <div className="streaming-console">
           <main>
             <div className="main-app-area">
-              <StreamingConsole />
-
+              {/* We keep StreamingConsole mounted to preserve event listeners/logs */}
+              <div style={{ display: isChatOpen ? 'flex' : 'none', width: '100%', height: '100%' }}>
+                  <StreamingConsole />
+              </div>
+              
+              <div style={{ display: !isChatOpen ? 'flex' : 'none', width: '100%', height: '100%', flex: 1 }}>
+                  <Orb />
+              </div>
             </div>
 
             <ControlTray></ControlTray>

@@ -1,3 +1,4 @@
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -22,7 +23,7 @@ import cn from 'classnames';
 
 import { memo, ReactNode, useEffect, useRef, useState } from 'react';
 import { AudioRecorder } from '../../../lib/audio-recorder';
-import { useSettings, useTools, useLogStore } from '@/lib/state';
+import { useSettings, useTools, useLogStore, useUI } from '@/lib/state';
 import AudioPulse from '../../audio-pulse/AudioPulse';
 
 import { useLiveAPIContext } from '../../../contexts/LiveAPIContext';
@@ -36,7 +37,14 @@ function ControlTray({ children }: ControlTrayProps) {
   const [muted, setMuted] = useState(false);
   const connectButtonRef = useRef<HTMLButtonElement>(null);
 
-  const { client, connected, connect, disconnect } = useLiveAPIContext();
+  const { client, connected, connect, disconnect, volume: agentVolume } = useLiveAPIContext();
+  const { toggleChat, isChatOpen } = useUI();
+  const { turns } = useLogStore();
+  
+  // Silence Detection Refs
+  const lastActivityRef = useRef<number>(Date.now());
+  const silenceTimerRef = useRef<any>(null);
+  const userVolumeRef = useRef<number>(0);
 
   useEffect(() => {
     if (!connected && connectButtonRef.current) {
@@ -50,6 +58,53 @@ function ControlTray({ children }: ControlTrayProps) {
     }
   }, [connected]);
 
+  // Silence Detection Logic
+  useEffect(() => {
+    if (!connected || muted) {
+        if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+        return;
+    }
+
+    const checkSilence = () => {
+        const now = Date.now();
+        const timeSinceActivity = now - lastActivityRef.current;
+        const SILENCE_THRESHOLD_MS = 7000; // 7 seconds
+
+        // If silence detected, trigger system prompt
+        if (timeSinceActivity > SILENCE_THRESHOLD_MS) {
+             console.log("Silence detected. Triggering prompt.");
+             useLogStore.getState().addTurn({
+                 role: 'system',
+                 text: `[SYSTEM_NOTIFICATION]: The user has been silent for 7 seconds. You are Jerry. Do NOT say you received a notification. Instead, break the silence naturally:
+                 - Sing a short chorus or intro (use sing_snippet tool).
+                 - Hum a tune.
+                 - Say a "hugot" line.
+                 - Ask "Boss, nandyan ka pa?"
+                 Act bored or like you're waiting.`,
+                 isFinal: true
+             });
+             // Reset timer to avoid spamming
+             lastActivityRef.current = Date.now();
+        }
+    };
+
+    const interval = setInterval(checkSilence, 1000);
+    return () => clearInterval(interval);
+  }, [connected, muted]);
+
+  // Monitor Activity (User Voice, Agent Voice, Chat)
+  useEffect(() => {
+     // If agent is speaking, reset timer
+     if (agentVolume > 0.01) {
+         lastActivityRef.current = Date.now();
+     }
+  }, [agentVolume]);
+
+  useEffect(() => {
+      // If chat updates, reset timer
+      lastActivityRef.current = Date.now();
+  }, [turns.length]);
+
   useEffect(() => {
     const onData = (base64: string) => {
       client.sendRealtimeInput([
@@ -59,14 +114,24 @@ function ControlTray({ children }: ControlTrayProps) {
         },
       ]);
     };
+
+    const onVolume = (vol: number) => {
+        userVolumeRef.current = vol;
+        if (vol > 0.01) {
+            lastActivityRef.current = Date.now();
+        }
+    };
+
     if (connected && !muted && audioRecorder) {
       audioRecorder.on('data', onData);
+      audioRecorder.on('volume', onVolume);
       audioRecorder.start();
     } else {
       audioRecorder.stop();
     }
     return () => {
       audioRecorder.off('data', onData);
+      audioRecorder.off('volume', onVolume);
     };
   }, [connected, client, muted, audioRecorder]);
 
@@ -76,37 +141,6 @@ function ControlTray({ children }: ControlTrayProps) {
     } else {
       connect();
     }
-  };
-
-  const handleExportLogs = () => {
-    const { systemPrompt, model } = useSettings.getState();
-    const { tools } = useTools.getState();
-    const { turns } = useLogStore.getState();
-
-    const logData = {
-      configuration: {
-        model,
-        systemPrompt,
-      },
-      tools,
-      conversation: turns.map(turn => ({
-        ...turn,
-        // Convert Date object to ISO string for JSON serialization
-        timestamp: turn.timestamp.toISOString(),
-      })),
-    };
-
-    const jsonString = JSON.stringify(logData, null, 2);
-    const blob = new Blob([jsonString], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    a.href = url;
-    a.download = `live-api-logs-${timestamp}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
   };
 
   const micButtonTitle = connected
@@ -137,13 +171,16 @@ function ControlTray({ children }: ControlTrayProps) {
         </div>
 
         <button
-          className={cn('action-button')}
-          onClick={handleExportLogs}
-          aria-label="Export Logs"
-          title="Export session logs"
+          className={cn('action-button', { active: isChatOpen })}
+          onClick={toggleChat}
+          aria-label="Toggle Chat"
+          title="Open Chat & Transcription"
         >
-          <span className="icon">download</span>
+          <span className="material-symbols-outlined icon">
+            {isChatOpen ? 'chat_bubble' : 'chat_bubble_outline'}
+          </span>
         </button>
+        
         <button
           className={cn('action-button')}
           onClick={useLogStore.getState().clearTurns}
