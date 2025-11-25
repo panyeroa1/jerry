@@ -1,3 +1,4 @@
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -22,9 +23,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { GenAILiveClient } from '../../lib/genai-live-client';
 import { LiveConnectConfig, Modality, LiveServerToolCall } from '@google/genai';
 import { AudioStreamer } from '../../lib/audio-streamer';
-import { audioContext } from '../../lib/utils';
+import { audioContext, playConnectionChime } from '../../lib/utils';
 import VolMeterWorket from '../../lib/worklets/vol-meter';
 import { useLogStore, useSettings } from '@/lib/state';
+import { saveMemory, getStoredMemories } from '../../lib/tools/memory';
+import { saveCorrection, getCorrections } from '../../lib/tools/feedback';
+import { saveReminder, getReminders, saveEvent, getCalendar } from '../../lib/tools/reminders';
 
 export type UseLiveApiResults = {
   client: GenAILiveClient;
@@ -74,6 +78,7 @@ export function useLiveApi({
   useEffect(() => {
     const onOpen = () => {
       setConnected(true);
+      playConnectionChime();
     };
 
     const onClose = () => {
@@ -112,11 +117,73 @@ export function useLiveApi({
           isFinal: true,
         });
 
+        let result = 'ok';
+        try {
+          switch (fc.name) {
+            case 'get_current_time':
+              result = new Date().toLocaleString('en-US', {
+                timeZone: 'Asia/Manila',
+                dateStyle: 'full',
+                timeStyle: 'medium',
+              });
+              break;
+            case 'store_memory':
+              if (fc.args.key && fc.args.value) {
+                result = saveMemory(fc.args.key as string, fc.args.value as string);
+              } else {
+                result = 'Error: Missing key or value';
+              }
+              break;
+            case 'retrieve_memory':
+              result = JSON.stringify(getStoredMemories());
+              break;
+            case 'record_correction':
+              if (fc.args.category && fc.args.instruction) {
+                result = saveCorrection(
+                  fc.args.category as string,
+                  fc.args.instruction as string
+                );
+              } else {
+                result = 'Error: Missing category or instruction';
+              }
+              break;
+            case 'set_critical_reminder':
+              if (fc.args.note && fc.args.priority) {
+                result = saveReminder(
+                  fc.args.note as string,
+                  fc.args.priority as string,
+                  fc.args.target_date as string
+                );
+              }
+              break;
+            case 'manage_calendar':
+              if (fc.args.action === 'add') {
+                result = saveEvent(
+                  fc.args.title as string,
+                  fc.args.date as string,
+                  fc.args.time as string
+                );
+              } else {
+                result = JSON.stringify(getCalendar());
+              }
+              break;
+            case 'emit_human_sound':
+            case 'emit_mannerism':
+            case 'sing_snippet':
+              result = `Executed ${fc.name} successfully.`;
+              break;
+            default:
+              result = 'Function executed successfully';
+          }
+        } catch (e: any) {
+          result = `Error executing tool: ${e.message}`;
+        }
+
         // Prepare the response
         functionResponses.push({
           id: fc.id,
           name: fc.name,
-          response: { result: 'ok' }, // simple, hard-coded function response
+          response: { result: result },
         });
       }
 
