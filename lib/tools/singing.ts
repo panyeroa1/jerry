@@ -8,14 +8,14 @@ import { FunctionCall } from '../state';
 import { FunctionResponseScheduling } from '@google/genai';
 
 export const singingTool: FunctionCall = {
-  name: 'sing_snippet',
-  description: 'Sings a short snippet (intro, chorus, or bridge) of a song. Use this when the user is unresponsive, to fill silence, or when specifically asked to sing. You should act like a professional singer.',
+  name: 'sing_professional',
+  description: 'Sings a song snippet (intro, chorus, bridge, or outro) like a professional singer. Use this to demonstrate high-quality vocal performance with specific emotion and genre.',
   parameters: {
     type: 'OBJECT',
     properties: {
       songName: {
         type: 'STRING',
-        description: 'The name of the song to sing (optional). If not provided, pick a classic Filipino love song or a popular international hit.',
+        description: 'The name of the song to sing.',
       },
       genre: {
         type: 'STRING',
@@ -32,6 +32,7 @@ export const singingTool: FunctionCall = {
         enum: ['romantic', 'sad', 'energetic', 'playful', 'sentimental'],
       },
     },
+    required: ['part', 'emotion'],
   },
   isEnabled: true,
   scheduling: FunctionResponseScheduling.INTERRUPT,

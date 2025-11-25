@@ -200,6 +200,7 @@ export function useLiveApi({
                 break;
             case 'emit_human_sound':
             case 'emit_mannerism':
+            case 'sing_professional':
             case 'sing_snippet':
               result = `Executed ${fc.name} successfully.`;
               break;

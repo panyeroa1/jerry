@@ -76,7 +76,7 @@ function ControlTray({ children }: ControlTrayProps) {
              useLogStore.getState().addTurn({
                  role: 'system',
                  text: `[SYSTEM_NOTIFICATION]: The user has been silent for 7 seconds. You are Jerry. Do NOT say you received a notification. Instead, break the silence naturally:
-                 - Sing a short chorus or intro (use sing_snippet tool).
+                 - Sing a short chorus or intro (use sing_professional tool).
                  - Hum a tune.
                  - Say a "hugot" line.
                  - Ask "Boss, nandyan ka pa?"

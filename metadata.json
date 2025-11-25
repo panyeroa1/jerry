@@ -1,5 +1,5 @@
 {
-  "name": "Native Audio Function Call Sandbox",
+  "name": "orb",
   "description": "An interactive sandbox for Gemini's native audio and function calling.",
   "requestFramePermissions": [
     "microphone"
